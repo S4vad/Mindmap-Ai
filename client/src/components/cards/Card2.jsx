@@ -3,7 +3,7 @@ import { Network, Zap, ArrowRight } from "lucide-react";
 
 const Card2 = () => {
   return (
-    <div className="group relative bg-gradient-to-br from-purple-50 to-violet-100 rounded-3xl p-7 border border-purple-200/50 hover:border-purple-300/70 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/20 transform hover:-translate-y-2 max-w-xs overflow-hidden">
+    <div className="group relative bg-gradient-to-br from-purple-50 to-violet-100 rounded-3xl p-7 border border-purple-200/50 hover:border-purple-300/70 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/20  max-w-xs overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-4 right-4 w-32 h-32 bg-purple-600 rounded-full blur-3xl"></div>

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
 export const Nav = () => {
@@ -10,16 +9,14 @@ export const Nav = () => {
     <div className="w-full px-24 pt-4 ">
       <header className="bg-white">
         <div className="flex justify-between items-center ">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center space-x-3"
-          >
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">AI</span>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900">MindMap AI</h1>
-          </motion.div>
+          <div className="flex items-center space-x-3">
+            <Link to="/" className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">AI</span>
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900">MindMap AI</h1>
+            </Link>
+          </div>
 
           <div className="flex items-center space-x-4">
             {currentMindmap && (
@@ -44,8 +41,10 @@ export const Nav = () => {
                 New Mindmap
               </button>
             ) : (
-              <Link to="/mindmap" className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:bg-purple-200 transition-colors">
-
+              <Link
+                to="/mindmap"
+                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:bg-purple-200 transition-colors"
+              >
                 Get Started
               </Link>
             )}
