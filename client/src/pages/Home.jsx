@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Brain,
   Lightbulb,
@@ -8,7 +8,7 @@ import {
   Zap,
   Text,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Card1 from "../components/cards/Card1";
 import Card2 from "../components/cards/card2";
 import Card3 from "../components/cards/Card3";
@@ -16,8 +16,22 @@ import Card4 from "../components/cards/Card4";
 import { motion } from "framer-motion";
 
 export const Home = () => {
+  const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 640;
+      setIsMobile(mobile);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   return (
-    <div className="bg-gradient-to-r from-blue-50 via-white to-white w-full mt-4 relative">
+    <div className="bg-gradient-to-r from-blue-50 via-white  to-white  w-full mt-1  relative px-12 sm:px-0 pb-20 sm:pb-0">
       <motion.div
         initial={{ opacity: 0, y: 60 }}
         animate={{ opacity: 1, y: 0 }}
@@ -33,7 +47,7 @@ export const Home = () => {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-          className="text-[70px] font-bold text-center"
+          className="lg:text-[70px] md:text-[45px] text-[29px] font-bold text-center"
         >
           Turn Your Thoughts into <br></br>
           <motion.span
@@ -50,10 +64,10 @@ export const Home = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="text-xl"
+          className="text-sm sm:text-md md:text-lg  lg:text-xl"
         >
           Share your thoughts and watch AI transform scattered ideas into
-          organized,<br></br>interactive mind maps. Perfect for students,
+          organized,{!isMobile && <br></br>}interactive mind maps. Perfect for students,
           researchers, and creative minds.
         </motion.p>
 
@@ -83,11 +97,11 @@ export const Home = () => {
             }}
             className="flex flex-col items-center "
           >
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center shadow-lg">
-              <Lightbulb className="w-10 h-10 text-white" />
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center shadow-lg">
+              <Lightbulb className="sm:w-10 w-8 h-8 sm:h-10 text-white" />
             </div>
-            <h3 className="mt-4 text-lg font-semibold">Think</h3>
-            <p className="text-gray-500 text-sm">Spark your ideas</p>
+            <h3 className="mt-4 text-md md:text-lg font-semibold">Think</h3>
+            <p className="text-gray-500 text-xs md:text-sm">Spark your ideas</p>
           </motion.div>
 
           <motion.div
@@ -126,11 +140,11 @@ export const Home = () => {
               transition: { duration: 0.3, ease: "easeOut" },
             }}
           >
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-violet-500 to-violet-700 flex items-center justify-center shadow-lg">
-              <Brain className="w-10 h-10 text-white" />
+            <div className="w-16 h-16 sm:w-20 sm:h-20  rounded-2xl bg-gradient-to-tr from-violet-500 to-violet-700 flex items-center justify-center shadow-lg">
+              <Brain className="sm:w-10 w-8 h-8 sm:h-10 text-white" />
             </div>
-            <h3 className="mt-4 text-lg font-semibold">AI Analyzes</h3>
-            <p className="text-gray-500 text-sm">Processes intelligently</p>
+            <h3 className="mt-4 text-sm md:text-lg font-semibold">AI Analyzes</h3>
+            <p className="text-gray-500 text-xs md:text-sm">Processes intelligently</p>
           </motion.div>
 
           <motion.div
@@ -169,11 +183,11 @@ export const Home = () => {
             }}
             className="flex flex-col items-center "
           >
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-700 flex items-center justify-center shadow-lg">
-              <Network className="w-10 h-10 text-white" />
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-700 flex items-center justify-center shadow-lg">
+              <Network className="sm:w-10 w-8 h-8 sm:h-10 text-white" />
             </div>
-            <h3 className="mt-4 text-lg font-semibold">MindMap Appears</h3>
-            <p className="text-gray-500 text-sm">Visualize beautifully</p>
+            <h3 className="mt-4 text-sm md:text-lg font-semibold">MindMap Appears</h3>
+            <p className="text-gray-500 text-xs md:text-sm">Visualize beautifully</p>
           </motion.div>
         </motion.div>
 
@@ -192,18 +206,10 @@ export const Home = () => {
           >
             <Link
               to="/mindmap"
-              className="bg-gradient-to-r from-blue-500 to-purple-600 flex mx-auto rounded-[50px] justify-center gap-6 items-center px-8 py-5 text-2xl text-white font-semibold transition-transform duration-300 hover:scale-105"
+              className="bg-gradient-to-r from-blue-500 to-purple-600 flex mx-auto rounded-[50px] justify-center gap-6 items-center px-4 py-3 md:px-8 md:py-5 text-lg md:text-xl lg:text-2xl text-white font-semibold transition-transform duration-300 hover:scale-105"
             >
-              <motion.div
-                animate={{ rotate: [0, 360] }}
-                transition={{
-                  duration: 8,
-                  repeat: Infinity,
-                  ease: "linear",
-                }}
-              >
-                <Play />
-              </motion.div>
+              <Play />
+
               <p>Start your visual journy</p>
             </Link>
           </motion.button>
@@ -216,7 +222,7 @@ export const Home = () => {
           >
             No signup required <span className="mx-2">•</span>
             Start creating immediately <span className="mx-2">•</span>
-            Voice-powered AI
+            Export anywhere
           </motion.p>
 
           <motion.div
@@ -269,77 +275,84 @@ export const Home = () => {
         </motion.div>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, x: -100, rotate: -10 }}
-        animate={{ opacity: 1, x: 0, rotate: 0 }}
-        transition={{
-          opacity: { duration: 1.2, delay: 2, ease: "backOut" },
-          x: { duration: 1.2, delay: 2, ease: "backOut" },
-          rotate: { duration: 0.2, delay: 0 },
-        }}
-        whileHover={{
-          scale: 1.05,
-          rotate: 2,
-          transition: { duration: 0.3, ease: "easeOut" },
-        }}
-        className="absolute top-32 left-14 "
-      >
-        <Card1 />
-      </motion.div>
+      {/* cards */}
+      <div className="  gap-6 mt-10 xl:mt-0 grid grid-col-1 md:grid-cols-2 xl:block  ">
+        <motion.div
+          onClick={() => navigate("/mindmap")}
+          initial={{ opacity: 0, x: -100, rotate: -10 }}
+          animate={{ opacity: 1, x: 0, rotate: 0 }}
+          transition={{
+            opacity: { duration: 1.2, delay: 2, ease: "backOut" },
+            x: { duration: 1.2, delay: 2, ease: "backOut" },
+            rotate: { duration: 0.2, delay: 0 },
+          }}
+          whileHover={{
+            scale: 1.05,
+            rotate: 2,
+            transition: { duration: 0.3, ease: "easeOut" },
+          }}
+          className="xl:absolute xl:top-32 xl:left-14   place-items-center md:place-items-end"
+        >
+          <Card1 />
+        </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, x: -100, scale: 0.8 }}
-        animate={{ opacity: 1, x: 0, scale: 1 }}
-        transition={{
-          opacity: { duration: 1.2, delay: 2, ease: "backOut" },
-          x: { duration: 1.2, delay: 2, ease: "backOut" },
-          rotate: { duration: 0.2, delay: 0 },
-        }}
-        whileHover={{
-          scale: 1.05,
-          y: -10,
-          transition: { duration: 0.3 },
-        }}
-        className="absolute bottom-10 left-24"
-      >
-        <Card3 />
-      </motion.div>
+        <motion.div
+          onClick={() => navigate("/mindmap")}
+          initial={{ opacity: 0, x: -100, scale: 0.8 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          transition={{
+            opacity: { duration: 1.2, delay: 2, ease: "backOut" },
+            x: { duration: 1.2, delay: 2, ease: "backOut" },
+            rotate: { duration: 0.2, delay: 0 },
+          }}
+          whileHover={{
+            scale: 1.05,
+            y: -10,
+            transition: { duration: 0.3 },
+          }}
+          className="xl:absolute xl:bottom-10 xl:left-24  place-items-center md:place-items-start"
+        >
+          <Card3 />
+        </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, x: 100, rotate: 10 }}
-        animate={{ opacity: 1, x: 0, rotate: 0 }}
-        transition={{
-          opacity: { duration: 1.2, delay: 2, ease: "backOut" },
-          x: { duration: 1.2, delay: 2, ease: "backOut" },
-          rotate: { duration: 0.2, delay: 0 },
-        }}
-        whileHover={{
-          scale: 1.05,
-          rotate: -2,
-          transition: { duration: 0.3 },
-        }}
-        className="absolute top-32 right-8"
-      >
-        <Card2 />
-      </motion.div>
+        <motion.div
+          onClick={() => navigate("/mindmap")}
+          initial={{ opacity: 0, x: 100, rotate: 10 }}
+          animate={{ opacity: 1, x: 0, rotate: 0 }}
+          transition={{
+            opacity: { duration: 1.2, delay: 2, ease: "backOut" },
+            x: { duration: 1.2, delay: 2, ease: "backOut" },
+            rotate: { duration: 0.2, delay: 0 },
+          }}
+          whileHover={{
+            scale: 1.05,
+            rotate: -2,
+            transition: { duration: 0.3 },
+          }}
+          className="xl:absolute xl:top-32 xl:right-8  place-items-center md:place-items-end"
+        >
+          <Card2 />
+        </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, x: 100, y: 50, scale: 0.8 }}
-        animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
-        transition={{
-          opacity: { duration: 1.2, delay: 2, ease: "backOut" },
-          x: { duration: 1.2, delay: 2, ease: "backOut" },
-          rotate: { duration: 0.2, delay: 0 },
-        }}
-        whileHover={{
-          scale: 1.05,
-          x: -10,
-          transition: { duration: 0.3 },
-        }}
-        className="absolute bottom-12 right-24"
-      >
-        <Card4 />
-      </motion.div>
+        <motion.div
+          onClick={() => navigate("/mindmap")}
+          initial={{ opacity: 0, x: 100, y: 50, scale: 0.8 }}
+          animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+          transition={{
+            opacity: { duration: 1.2, delay: 2, ease: "backOut" },
+            x: { duration: 1.2, delay: 2, ease: "backOut" },
+            rotate: { duration: 0.2, delay: 0 },
+          }}
+          whileHover={{
+            scale: 1.05,
+            x: -10,
+            transition: { duration: 0.3 },
+          }}
+          className="xl:absolute xl:bottom-12 xl:right-24 place-items-center md:place-items-start"
+        >
+          <Card4 />
+        </motion.div>
+      </div>
 
       <div className="fixed bottom-3 right-4 text-sm text-gray-500 opacity-70 select-none pointer-events-none">
         Made by <span className="font-semibold">Savad</span>

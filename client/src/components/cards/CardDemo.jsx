@@ -34,13 +34,14 @@ const Card3 = () => {
 
         {/* Description */}
         <p className="text-gray-600 text-xs leading-relaxed mb-2">
-         You have full control and
+          Your data is processed only within this system. Nothing is stored in
+          local storage, cookies, or any cloud server. You have full control and
           your information disappears once you leave.
         </p>
 
         {/* CTA */}
         <div className="flex items-center text-emerald-600 font-medium group-hover:text-emerald-700 transition-colors">
-          <span className="text-xs mr-2">Start creating</span>
+          <span className="text-xs mr-2">Start collaborating</span>
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </div>
       </div>

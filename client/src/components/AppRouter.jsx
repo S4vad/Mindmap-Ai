@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import  Mindmap  from "../pages/Mindmap";
+import MindmapApp from "../pages/Mindmap";
 import App from "../App";
 import { Home } from "../pages/Home";
 
@@ -14,7 +14,7 @@ const router = createBrowserRouter([
       },
       {
         path: "mindmap",
-        element: <Mindmap />,
+        element: <MindmapApp />,
       },
     ],
   },

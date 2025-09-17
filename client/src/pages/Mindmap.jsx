@@ -1,145 +1,162 @@
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import TextInput from "../components/mindmap/TextInput";
-import Sidebar from "../components/mindmap/Sidbar";
-import MindmapCanvas from "../components/mindmap/MindmapCanvas";
-import { apiCall, API_URL } from "../utils/api";
+import React, { useContext, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
+import TextInputForm from "../components/mindmap/TextInput";
+import { MindmapCanvas } from "../components/mindmap/MindmapCanvas";
+import { MindmapContext } from "../context/MindmapContext";
 
-function Mindmap() {
-  const [mindmaps, setMindmaps] = useState([]);
-  const [currentMindmap, setCurrentMindmap] = useState(null);
+// Configure API
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+axios.defaults.baseURL = API_BASE_URL;
+axios.defaults.withCredentials = true;
+
+const MindmapApp = () => {
   const [loading, setLoading] = useState(false);
-  const [showInput, setShowInput] = useState(true);
-  const [nodes, setNodes] = useState([]);
-  const [edges, setEdges] = useState([]);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    loadMindmaps();
-  }, []);
-
-  const loadMindmaps = async () => {
-    try {
-      const data = await apiCall(`${API_URL}/mindmaps`);
-      setMindmaps(data);
-    } catch (error) {
-      console.error("Error loading mindmaps:", error);
-    }
-  };
+  const {
+    setShowCanvas,
+    showInput,
+    setShowInput,
+    currentText,
+    setCurrentText,
+    currentTitle,
+    setCurrentTitle,
+    mindmap,
+    setMindmap,
+  } = useContext(MindmapContext);
 
   const generateMindmap = async (text, title) => {
+    if (!text || text.trim().length < 10) {
+      setError("Please enter at least 10 characters");
+      return;
+    }
+
     setLoading(true);
+    setError(null);
+
     try {
-      const aiResponse = await apiCall(`${API_URL}/ai/generate-mindmap`, {
-        method: "POST",
-        body: JSON.stringify({ text }),
+      const response = await axios.post("/generate-mindmap", {
+        text: text.trim(),
+        title: title?.trim() || "My Mindmap",
       });
 
-      const { nodes: newNodes, edges: newEdges } = aiResponse;
-      const mindmapData = {
-        title: title || "Untitled Mindmap",
-        description: text.substring(0, 100) + "...",
-        nodes: newNodes,
-        edges: newEdges,
-        originalText: text,
-      };
-
-      const savedMindmap = await apiCall(`${API_URL}/mindmaps`, {
-        method: "POST",
-        body: JSON.stringify(mindmapData),
-      });
-
-      setCurrentMindmap(savedMindmap);
-      setNodes(newNodes);
-      setEdges(newEdges);
-      setShowInput(false);
-      loadMindmaps();
+      if (response.data.success) {
+        setMindmap(response.data.mindmap);
+        setCurrentText(text);
+        setCurrentTitle(title || "My Mindmap");
+        setShowInput(false);
+        setShowCanvas(true);
+      }
     } catch (error) {
       console.error("Error generating mindmap:", error);
-      alert("Error generating mindmap. Please try again.");
+      setShowInput(true);
+      setError(error.response?.data?.error || "Failed to generate mindmap");
     } finally {
       setLoading(false);
     }
   };
 
-  const loadMindmap = async (mindmapId) => {
-    try {
-      const mindmap = await apiCall(`${API_URL}/mindmaps/${mindmapId}`);
-      setCurrentMindmap(mindmap);
-      setNodes(mindmap.nodes || []);
-      setEdges(mindmap.edges || []);
-      setShowInput(false);
-    } catch (error) {
-      console.error("Error loading mindmap:", error);
-    }
-  };
-
-  const saveMindmap = async () => {
-    if (!currentMindmap) return;
-    try {
-      const updatedData = { ...currentMindmap, nodes, edges };
-      await apiCall(`${API_URL}/mindmaps/${currentMindmap._id}`, {
-        method: "PUT",
-        body: JSON.stringify(updatedData),
-      });
-      alert("Mindmap saved successfully!");
-    } catch (error) {
-      console.error("Error saving mindmap:", error);
-      alert("Error saving mindmap.");
-    }
-  };
-
-  const createNewMindmap = () => {
-    setCurrentMindmap(null);
-    setNodes([]);
-    setEdges([]);
-    setShowInput(true);
-  };
-
-  const exportMindmap = () => {
-    if (!currentMindmap) return;
-    const dataStr = JSON.stringify({ title: currentMindmap.title, nodes, edges }, null, 2);
-    const dataBlob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${currentMindmap.title || "mindmap"}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50">
-     
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* Error Display */}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            className="max-w-4xl mx-auto mt-4 px-4"
+          >
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center justify-between">
+              <div className="flex items-center">
+                <span className="text-red-600 mr-3">⚠️</span>
+                <span className="text-red-700">{error}</span>
+              </div>
+              <button
+                onClick={() => setError(null)}
+                className="text-red-600 hover:text-red-800 font-bold"
+              >
+                ✕
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div className="flex h-screen">
-    
-        <Sidebar mindmaps={mindmaps} onLoadMindmap={loadMindmap} currentMindmap={currentMindmap} />
-
-
-        <div className="flex-1 flex flex-col">
+      {/* Main Content */}
+      <main>
+        <AnimatePresence mode="wait">
           {showInput ? (
-            <div className="flex-1 flex items-center justify-center">
-              <TextInput onGenerate={generateMindmap} loading={loading} />
-            </div>
+            <motion.div
+              key="input"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="max-w-7xl mx-auto px-4 py-4"
+            >
+              <TextInputForm onGenerate={generateMindmap} loading={loading} />
+            </motion.div>
           ) : (
-            <div className="flex-1">
-              <MindmapCanvas nodes={nodes} edges={edges} onNodesChange={setNodes} onEdgesChange={setEdges} mindmap={currentMindmap} />
-            </div>
+            <motion.div
+              key="mindmap"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full "
+            >
+              <MindmapCanvas mindmap={mindmap} title={currentTitle} />
+            </motion.div>
           )}
-        </div>
-      </div>
+        </AnimatePresence>
+      </main>
 
+      {/* Loading Overlay */}
+      <AnimatePresence>
+        {loading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2"
+          >
+            <div className="bg-white rounded-2xl p-6 sm:p-8 w-full max-w-sm sm:max-w-md mx-auto text-center">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 border-3 sm:border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
+                Creating Your Mindmap
+              </h3>
+              <p className="text-sm sm:text-base text-gray-600 mb-4 leading-relaxed">
+                AI is analyzing your text and building connections...
+              </p>
+              <div className="bg-gray-100 rounded-full h-2 mb-2">
+                <div
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full animate-pulse"
+                  style={{ width: "75%" }}
+                ></div>
+              </div>
+              <p className="text-xs sm:text-sm text-gray-500">
+                This usually takes 10-30 seconds
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {loading && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 flex items-center space-x-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="text-gray-700">Generating mindmap with AI...</span>
+      {/* Footer */}
+      <footer className="bg-gray-50 border-t mt-20">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="text-center text-gray-600">
+            <p className="mb-2">
+              Transform any text into beautiful, interactive mindmaps
+            </p>
+            <p className="text-sm">
+              Powered by advanced AI • No signup required • Export anywhere
+            </p>
           </div>
-        </motion.div>
-      )}
+        </div>
+      </footer>
     </div>
   );
-}
+};
 
-export default Mindmap;
+export default MindmapApp;

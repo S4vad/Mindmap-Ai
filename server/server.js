@@ -1,46 +1,78 @@
 import express from "express";
 import cors from "cors";
-import mongoose from "mongoose";
-import { Server } from "socket.io";
-import http from "http";
+import helmet from "helmet";
+import compression from "compression";
+import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
-import router from "./routes/mindmap.routes.js";
+import mindmapRoutes from "./routes/mindmap.routes.js"
+import { initializeAI } from "./services/aiServices.js";
+
 dotenv.config();
 
-const app=express()
-const server=http.createServer(app);
-const io=new Server(server,{
-  cors:{
-    origin:"http://localhost:5137",
-    methods: ["GET", "POST"]
-  }
-})
+const app = express();
+const PORT = process.env.PORT || 5000;
 
-app.use(cors())
-app.use(express.json())
+app.use(helmet());
+app.use(compression());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use("/",router)
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
-// Socket.io for real-time collaboration
-io.on('connection', (socket) => {
-  console.log('User connected');
-  
-  socket.on('join-mindmap', (mindmapId) => {
-    socket.join(mindmapId);
+// Rate limiter (general)
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: { error: "Too many requests. Try again later." },
+  })
+);
+
+// Request logging
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    const statusEmoji = res.statusCode >= 400 ? "❌" : "✅";
+    console.log(
+      `${statusEmoji} ${req.method} ${req.path} - ${res.statusCode} - ${duration}ms`
+    );
   });
-  
-  socket.on('mindmap-update', (data) => {
-    socket.to(data.mindmapId).emit('mindmap-updated', data);
-  });
-  
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
-  });
+  next();
 });
 
 
-mongoose.connect(process.env.MONGO_URL).then(()=>console.log("connected to mongoDB")).catch((err)=>console.log("mongoDB connection error",err))
+app.get("/health", (req, res) =>
+  res.json({ status: "OK", timestamp: new Date().toISOString() })
+);
+app.use("/", mindmapRoutes);
 
-const PORT = process.env.PORT || 5000;
 
-server.listen(PORT,()=>console.log(`server running on port ${PORT}`))
+//  Error Handling 
+app.use((err, req, res, next) => {
+  console.error("💥 Server Error:", err);
+  res.status(500).json({ success: false, error: "Internal server error" });
+});
+
+
+const startServer = async () => {
+  try {
+    console.log("🚀 Starting MindMap AI Server...");
+    await initializeAI();
+    console.log("✅ AI service ready");
+
+    app.listen(PORT, () => {
+      console.log(`✅ Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("❌ Failed to start server:", error);
+    process.exit(1);
+  }
+};
+
+startServer();
